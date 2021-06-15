@@ -23,12 +23,13 @@ namespace Travel
         private double _lat;
         private double _lon;
         private string _name;
-        // TODO: string country code ou Country country?
+        private string _country_code;
 
         public int Id { get => _id; set => _id = value; }
         public double Lat { get => _lat; set => _lat = value; }
         public double Lon { get => _lon; set => _lon = value; }
         public string Name { get => _name; set => _name = value; }
+        public string Country_code { get => _country_code; set => _country_code = value; }
 
         public override string ToString()
         {
@@ -42,13 +43,15 @@ namespace Travel
         private double _lat;
         private double _lon;
         private string _name;
-        // era
-        // city
+        private string _eraDesignation;
+        private string _cityId;
 
         public int Id { get => _id; set => _id = value; }
         public double Lat { get => _lat; set => _lat = value; }
         public double Lon { get => _lon; set => _lon = value; }
         public string Name { get => _name; set => _name = value; }
+        public string EraDesignation { get => _eraDesignation; set => _eraDesignation = value; }
+        public string CityId { get => _cityId; set => _cityId = value; }
     }
 
     class Guide
@@ -107,44 +110,67 @@ namespace Travel
         private string _name;
         private string _desc;
         private int _duration;
+        private string _typeDesignation;
+        private int _tariffId;
 
         public int Id { get => _id; set => _id = value; }
         public string Name { get => _name; set => _name = value; }
         public string Desc { get => _desc; set => _desc = value; }
         public int Duration { get => _duration; set => _duration = value; }
-        // tour type
-        // tariff
+        public string TypeDesignation { get => _typeDesignation; set => _typeDesignation = value; }
+        public int TariffId { get => _tariffId; set => _tariffId = value; }
     }
 
     class VirtualTour
     {
-        // tour
+        private int _tourId;
         private string _accessLink;
         private string _password;
 
         public string AccessLink { get => _accessLink; set => _accessLink = value; }
         public string Password { get => _password; set => _password = value; }
+        public int TourId { get => _tourId; set => _tourId = value; }
     }
 
     class PresentialTour
     {
-        // tour
+        private int _tourId;
         private string _startLocation;
         private string _endLocation;
 
         public string StartLocation { get => _startLocation; set => _startLocation = value; }
         public string EndLocation { get => _endLocation; set => _endLocation = value; }
+        public int TourId { get => _tourId; set => _tourId = value; }
     }
 
     class TourInstance
     {
         private DateTime _startDate;
-        // tour
-        // guide
+        private int _tourId;
+        private int _guideId;
 
         public DateTime StartDate { get => _startDate; set => _startDate = value; }
+        public int TourId { get => _tourId; set => _tourId = value; }
+        public int GuideId { get => _guideId; set => _guideId = value; }
     }
 
-    // tour_includes_monument?
-    // tourist_participates?
+    class TourIncludesMonument
+    {
+        private int _monumentId;
+        private int _tourId;
+
+        public int MonumentId { get => _monumentId; set => _monumentId = value; }
+        public int TourId { get => _tourId; set => _tourId = value; }
+    }
+
+    class TouristParticipates
+    {
+        private string _touristEmail;
+        private int _tourId;
+        private DateTime _startDate;
+
+        public string TouristEmail { get => _touristEmail; set => _touristEmail = value; }
+        public int TourId { get => _tourId; set => _tourId = value; }
+        public DateTime StartDate { get => _startDate; set => _startDate = value; }
+    }
 }

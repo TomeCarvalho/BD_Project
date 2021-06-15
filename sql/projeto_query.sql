@@ -110,6 +110,7 @@ CREATE TABLE travel.TOUR_INSTANCE (
 CREATE TABLE travel.tour_includes_monument (
 	monument_id		 INT REFERENCES travel.MONUMENT(id),
 	tour_id			 INT REFERENCES travel.TOUR(id),
+	PRIMARY KEY(monument_id, tour_id),
 )
 
 CREATE TABLE travel.tourist_participates (
@@ -117,6 +118,7 @@ CREATE TABLE travel.tourist_participates (
 	tour_id		  INT,
 	start_date_	  DATETIME,
 	FOREIGN KEY (tour_id, start_date_) REFERENCES travel.TOUR_INSTANCE(id, start_date_),
+	PRIMARY KEY(tour_id, start_date_, tourist_email),
 )
 
 INSERT INTO travel.COUNTRY VALUES ('+30', 'Greece')

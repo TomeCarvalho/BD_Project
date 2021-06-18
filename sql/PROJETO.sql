@@ -503,23 +503,30 @@ DROP PROCEDURE travel.GetTourByPartDesc
 
 EXEC travel.GetTourByPartDesc 'Ro'
 
-
---lucro total das instancias / nº instancias
---lucro total: soma do que os turistas pagaram em todas as instâncias
-
-SELECT * FROM travel.TOUR
-SELECT * FROM travel.TOUR_INSTANCE
-
-SELECT * FROM travel.TOUR JOIN travel.TOUR_INSTANCE ON  travel.TOUR.id = travel.TOUR_INSTANCE
-
-
+-- Remove Countries
 go
-CREATE PROCEDURE travel.TotalProfit @tour_id INT
+CREATE PROCEDURE travel.RemoveCountry @code  VARCHAR(8)
 AS
-	
+BEGIN
+	BEGIN TRAN
+		DELETE FROM travel.COUNTRY
+		WHERE travel.COUNTRY.code = @code
+		COMMIT TRAN
+END
 go
 
-DROP PROCEDURE travel.TotalProfit
+DROP PROCEDURE travel.RemoveCountry
 
-EXEC travel.TotalProfit -1
+-- Add Countries
+go
+CREATE PROCEDURE travel.AddCountry @code  VARCHAR(8), @name_ VARCHAR(64)
+AS
+BEGIN
+	BEGIN TRAN
+		INSERT INTO travel.COUNTRY 
+		VALUES(@code, @name_)
+		COMMIT TRAN
+END
+go
 
+DROP PROCEDURE travel.AddCountry

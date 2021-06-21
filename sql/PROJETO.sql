@@ -515,18 +515,178 @@ BEGIN
 END
 go
 
-DROP PROCEDURE travel.RemoveCountry
+-- Remove Cities
+go
+CREATE PROCEDURE travel.RemoveCity @id INT
+AS
+BEGIN
+	BEGIN TRAN
+		DELETE FROM travel.CITY
+		WHERE travel.CITY.id = @id
+		COMMIT TRAN
+END
+go
+
+-- Remove Eras
+go
+CREATE PROCEDURE travel.RemoveEra @designation VARCHAR(64)
+AS
+BEGIN
+	BEGIN TRAN
+		DELETE FROM travel.ERA
+		WHERE travel.ERA.designation = @designation
+		COMMIT TRAN
+END
+go
+
+-- Remove Monuments
+go
+CREATE PROCEDURE travel.RemoveMonument @id INT
+AS
+BEGIN
+	BEGIN TRAN
+		DELETE FROM travel.MONUMENT
+		WHERE travel.MONUMENT.id = @id
+		COMMIT TRAN
+END
+go
+
+
+-- Remove Tariffs
+go
+CREATE PROCEDURE travel.Tariff @id INT
+AS
+BEGIN
+	BEGIN TRAN
+		DELETE FROM travel.TARIFF
+		WHERE travel.TARIFF.id = @id
+		COMMIT TRAN
+END
+go
+
+-- Remove Tours
+go
+CREATE PROCEDURE travel.TOUR @id INT
+AS
+BEGIN
+	BEGIN TRAN
+		DELETE FROM travel.TOUR
+		WHERE travel.TOUR.id = @id
+		COMMIT TRAN
+END
+go
+
 
 -- Add Countries
 go
 CREATE PROCEDURE travel.AddCountry @code  VARCHAR(8), @name_ VARCHAR(64)
 AS
 BEGIN
-	BEGIN TRAN
-		INSERT INTO travel.COUNTRY 
-		VALUES(@code, @name_)
-		COMMIT TRAN
+	INSERT INTO travel.COUNTRY 
+	VALUES(@code, @name_)
 END
 go
 
 DROP PROCEDURE travel.AddCountry
+
+ -- Add Cities
+ go
+CREATE PROCEDURE travel.AddCity @id INT, @latitude DECIMAL(8, 6), @longitude DECIMAL(8, 6), @name_ VARCHAR(64), @country_code VARCHAR(8)
+AS
+BEGIN
+	INSERT INTO travel.CITY 
+	VALUES(@id, @latitude, @longitude, @name_, @country_code)
+END
+go
+
+ --Add Eras
+go
+CREATE PROCEDURE travel.AddEra @designation VARCHAR(64), @start_year INT, @end_year INT
+AS
+BEGIN
+	INSERT INTO travel.ERA 
+	VALUES(@designation, @start_year, @end_year)
+END
+go
+
+-- Add Monuments
+go
+CREATE PROCEDURE travel.AddMonument @id INT, @name_ VARCHAR(128), @latitude DECIMAL(8, 6), @longitude DECIMAL(8, 6), @era_designation VARCHAR(64), @city_id INT
+AS
+BEGIN
+	INSERT INTO travel.MONUMENT  
+	VALUES(@id, @name_, @latitude, @longitude, @era_designation, @city_id)
+END
+go
+
+
+ -- Add Tariffs
+ go
+CREATE PROCEDURE travel.AddTariff @id INT, @price_spring MONEY, @price_summer MONEY, @price_autumn MONEY, @price_winter MONEY
+AS
+BEGIN
+	INSERT INTO travel.TARIFF   
+	VALUES(@id, @price_spring, @price_summer, @price_autumn, @price_winter)
+END
+go
+
+ -- Add Tours
+
+
+-- Get Country information
+go
+CREATE PROCEDURE travel.CountryInformation @code  VARCHAR(8)
+AS
+BEGIN
+	SELECT tour_id, travel.GetMonumentsInCountry.*, travel.TOUR_INSTANCE.start_date_
+	FROM travel.tour_includes_monument JOIN travel.GetMonumentsInCountry
+	ON travel.tour_includes_monument.monument_id = travel.GetMonumentsInCountry.mon_id
+	JOIN travel.TOUR_INSTANCE
+	ON tour_id = travel.TOUR_INSTANCE.id
+	WHERE travel.GetMonumentsInCountry.code = @code
+END
+go
+
+DROP PROCEDURE travel.CountryInformation
+
+
+-- Get cities in a given country
+CREATE VIEW travel.GetCitiesInCountry
+AS
+	SELECT id AS city_id, latitude AS city_lat, longitude AS city_lon, travel.CITY.name_ AS city_name, travel.COUNTRY.*
+	FROM travel.CITY JOIN travel.COUNTRY
+	ON travel.CITY.country_code = travel.COUNTRY.code
+
+DROP VIEW travel.GetCitiesInCountry
+
+
+-- Get monuments in given country
+CREATE VIEW travel.GetMonumentsInCountry
+AS
+	SELECT travel.MONUMENT.id AS mon_id, travel.MONUMENT.name_ AS mon_name, travel.MONUMENT.latitude AS mon_lat, travel.MONUMENT.longitude AS mon_lon,
+	era_designation, travel.GetCitiesInCountry.*
+	FROM travel.MONUMENT JOIN travel.GetCitiesInCountry
+	ON travel.MONUMENT.city_id = travel.GetCitiesInCountry.city_id
+
+DROP VIEW travel.GetMonumentsInCountry
+
+
+--1 tour - n instancias
+--1 instancia - n participantes
+--1 participante - 1 preço
+
+
+--Tour -> tariff_id -> preços
+--cada instancia -> start_date -> get season() -> get preço()
+--participante -> get age() -> aplicar desconto ao preço
+
+
+
+SELECT DISTINCT travel.TOUR.*, travel.TOUR_INSTANCE.guide_id, travel.TOUR_INSTANCE.start_date_, travel.GetSeason(travel.TOUR_INSTANCE.start_date_) AS season, travel.tourist_participates.tourist_email
+FROM travel.TOUR 
+JOIN travel.TOUR_INSTANCE 
+ON travel.TOUR.id = travel.TOUR_INSTANCE.id
+JOIN travel.tourist_participates
+ON travel.TOUR.id = travel.tourist_participates.tour_id
+
+

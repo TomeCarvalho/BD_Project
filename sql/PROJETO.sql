@@ -554,7 +554,7 @@ go
 
 -- Remove Tariffs
 go
-CREATE PROCEDURE travel.Tariff @id INT
+CREATE PROCEDURE travel.RemoveTariff @id INT
 AS
 BEGIN
 	BEGIN TRAN
@@ -566,13 +566,101 @@ go
 
 -- Remove Tours
 go
-CREATE PROCEDURE travel.TOUR @id INT
+CREATE PROCEDURE travel.RemoveTour @id INT
 AS
 BEGIN
 	BEGIN TRAN
 		DELETE FROM travel.TOUR
 		WHERE travel.TOUR.id = @id
 		COMMIT TRAN
+END
+go
+
+-- Remove instances
+go
+CREATE PROCEDURE travel.RemoveTourInstance @start_date_ DATETIME, @id INT
+AS
+BEGIN
+	BEGIN TRAN
+		DELETE FROM travel.TOUR_INSTANCE
+		WHERE travel.TOUR_INSTANCE.id = @id AND travel.TOUR_INSTANCE.start_date_ = @start_date_
+		DELETE FROM travel.tourist_participates
+		WHERE travel.tourist_participates.tour_id = @id AND travel.tourist_participates.start_date_ = @start_date_
+		COMMIT TRAN
+END
+go
+
+
+-- Remove Tourists
+go
+CREATE PROCEDURE travel.RemoveTourist @email VARCHAR(128)
+AS
+BEGIN
+	BEGIN TRAN
+		DELETE FROM travel.TOURIST
+		WHERE travel.TOURIST.email = @email
+		COMMIT TRAN
+END
+go
+
+
+-- Remove Guides
+go
+CREATE PROCEDURE travel.RemoveGuide @email VARCHAR(128), @name_ VARCHAR(512), @birth_date_ DATE, @id INT
+AS
+BEGIN
+	BEGIN TRAN
+		DELETE FROM travel.GUIDE
+		WHERE travel.GUIDE.id = @id
+		COMMIT TRAN
+END
+go
+
+-- Remove Tour Types
+go
+CREATE PROCEDURE travel.RemoveTourType @designation VARCHAR(16)
+AS
+BEGIN
+	BEGIN TRAN
+		DELETE FROM travel.TOUR_TYPE
+		WHERE travel.TOUR_TYPE.designation = @designation
+		COMMIT TRAN
+END
+go
+
+-- Remove tour includes monument
+go
+CREATE PROCEDURE travel.RemoveTourIncludesMonument @monument_id INT, @tour_id INT
+AS
+BEGIN
+	BEGIN TRAN
+		DELETE FROM travel.tour_includes_monument
+		WHERE travel.tour_includes_monument.monument_id = @monument_id AND travel.tour_includes_monument.tour_id = @tour_id
+		COMMIT TRAN
+END
+go
+
+-- Remove tourist participates
+go
+CREATE PROCEDURE travel.RemoveTouristParticipates @tourist_email VARCHAR(128),	@tour_id INT, @start_date_ DATETIME
+AS
+BEGIN
+	BEGIN TRAN
+		DELETE FROM travel.tourist_participates 
+		WHERE travel.tourist_participates.tourist_email = @tourist_email AND travel.tourist_participates.tour_id = @tour_id AND travel.tourist_participates.start_date_ = @start_date_
+		COMMIT TRAN
+END
+go
+
+
+
+-- Add tourist participates
+go
+CREATE PROCEDURE travel.AddTouristParticipates @tourist_email VARCHAR(128), @tour_id INT, @start_date_ DATETIME
+AS
+BEGIN
+	INSERT INTO travel.tourist_participates   
+	VALUES(@tourist_email, @tour_id, @start_date_)
 END
 go
 
@@ -620,8 +708,8 @@ END
 go
 
 
- -- Add Tariffs
- go
+-- Add Tariffs
+go
 CREATE PROCEDURE travel.AddTariff @id INT, @price_spring MONEY, @price_summer MONEY, @price_autumn MONEY, @price_winter MONEY
 AS
 BEGIN
@@ -631,7 +719,97 @@ END
 go
 
  -- Add Tours
+go
+CREATE PROCEDURE travel.AddPresentialTour @id INT, @name_ VARCHAR(128), @desc_ VARCHAR(512), @duration INT, @type_ VARCHAR(16), @tariff_id INT, @start_location VARCHAR(512), @end_location VARCHAR(512)
+AS
+BEGIN
+	BEGIN TRAN
+	INSERT INTO travel.TOUR   
+	VALUES(@id, @name_, @desc_, @duration, @type_, @tariff_id)
+	INSERT INTO travel.PRESENTIAL_TOUR   
+	VALUES(@id, @start_location, @end_location)
+	COMMIT TRAN
+END
+go
 
+
+go
+CREATE PROCEDURE travel.AddvirtualTour  @id INT, @name_ VARCHAR(128), @desc_ VARCHAR(512), @duration INT, @type_ VARCHAR(16), @tariff_id INT, @access_link VARCHAR(256), @password_ VARCHAR(32)
+AS
+BEGIN
+	BEGIN TRAN
+	INSERT INTO travel.TOUR   
+	VALUES(@id, @name_, @desc_, @duration, @type_, @tariff_id)
+	INSERT INTO travel.VIRTUAL_TOUR   
+	VALUES(@id, @access_link, @password_)
+	COMMIT TRAN
+END
+go
+
+
+-- Add Tour Instances
+go
+CREATE PROCEDURE travel.AddTourInstance @start_date_ DATETIME, @id INT, @guide_id INT
+AS
+BEGIN
+	IF(@start_date_ >= GETDATE())
+	BEGIN
+		INSERT INTO travel.TOUR_INSTANCE   
+	VALUES(@start_date_, @id, @guide_id)
+	END
+END
+go
+
+-- Add Tourists
+go
+CREATE PROCEDURE travel.AddTourist @email VARCHAR(128), @name_ VARCHAR(512), @birth_date DATE
+AS
+BEGIN
+	INSERT INTO travel.TOURIST   
+	VALUES(@email, @name_, @birth_date)
+END
+go
+
+-- Add Guides
+go
+CREATE PROCEDURE travel.AddGuide @email VARCHAR(128), @name_ VARCHAR(512), @birth_date DATE, @id INT
+AS
+BEGIN
+	INSERT INTO travel.GUIDE   
+	VALUES(@email, @name_, @birth_date, @id)
+END
+go
+
+-- Add Tour Type
+go
+CREATE PROCEDURE travel.AddTourType @designation VARCHAR(16)
+AS
+BEGIN
+	INSERT INTO travel.TOUR_TYPE   
+	VALUES(@designation)
+END
+go
+
+-- Add tour includes monument
+go
+CREATE PROCEDURE travel.AddTourIncludesMonument @monument_id INT, @tour_id INT
+AS
+BEGIN
+	INSERT INTO travel.tour_includes_monument   
+	VALUES(@monument_id, @tour_id)
+END
+go
+
+
+-- Add tourist participates
+go
+CREATE PROCEDURE travel.AddTouristParticipates @tourist_email VARCHAR(128), @tour_id INT, @start_date_ DATETIME
+AS
+BEGIN
+	INSERT INTO travel.tourist_participates   
+	VALUES(@tourist_email, @tour_id, @start_date_)
+END
+go
 
 -- Get Country information
 go
